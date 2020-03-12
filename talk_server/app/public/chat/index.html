@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="socket.io.js"></script>
+    <style>
+        h1 {
+            text-align: center;
+        }
+
+        ul {
+            border-top: 1px solid #dddddd;
+            height: 500px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>聊天窗口</h1>
+    <ul id="list">
+
+    </ul>
+    <div>
+        <input id="area" />
+        <button id="action" onclick="send()">发送</button>
+    </div>
+    <script>
+        const log = console.log;
+        const _list = document.querySelector('#list');
+        const _input = document.querySelector('#area');
+        const _btn = document.querySelector('#action');
+        const uid = Math.random().toString(16).substr(2);
+        const rid = 'A10000'
+        const socket = io('/', {
+            query: {
+                room: rid,
+                userId: uid
+            },
+            transports: ['websocket']
+        })
+        //  连接成功事件
+        socket.on('connect', () => {
+            const id = socket.id;
+            console.log('连接成功 ===> Socket ID: ' + id);
+            socket.on(id, msg => {
+                log('#receive: ', msg)
+            })
+        })
+        // 接收在线用户信息
+        socket.on('online', msg => {
+            log('#online ===>,', msg);
+        });
+        // 系统事件
+        socket.on('disconnect', msg => {
+            log('#disconnect ===>', msg);
+        });
+
+        socket.on('disconnecting', () => {
+            log('#disconnecting');
+        });
+
+        socket.on('error', () => {
+            log('#error');
+        });
+
+
+
+        function send() {
+            let text = _input.value;
+            socket.emit('exchange', {
+                target: rid,
+                payload: {
+                    msg: text,
+                },
+            })
+            _input.value = '';
+        }
+    </script>
+</body>
+
+</html>
