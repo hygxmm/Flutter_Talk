@@ -13,9 +13,9 @@ module.exports = () => {
         // 用户加入
         socket.join(room);
         // 在线列表
-        console.log('房间列表', nsp.adapter.rooms);
+        // console.log('房间列表', nsp.adapter.rooms);
         nsp.adapter.clients(rooms, (err, clients) => {
-            console.log('在线用户列表', clients)
+            // console.log('在线用户列表', clients)
             // 跟新在线用户列表
             nsp.to(room).emit('online', {
                 clients,
@@ -30,7 +30,7 @@ module.exports = () => {
         console.log("用户离开");
 
         nsp.adapter.clients(rooms, (err, clients) => {
-            console.log(clients);
+            // console.log(clients);
             // 更新在线用户列表
             nsp.to(room).emit('online', {
                 clients,

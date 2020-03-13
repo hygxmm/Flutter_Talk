@@ -1,7 +1,5 @@
 const Controller = require('egg').Controller;
-const jwt = require('jsonwebtoken');
 const assert = require('assert');
-const crypto = require('crypto');
 const isValid = require('mongoose').Types.ObjectId.isValid;
 
 class GroupController extends Controller {
@@ -93,11 +91,70 @@ class GroupController extends Controller {
         assert(isValid(groupId), '无效的群组ID');
         const group = await ctx.model.Group.findOne({ _id: groupId });
         assert(group, '群组不存在');
-        return
-
+        const sockets = await ctx.model.Socket.find(
+            { user: group.members },
+            { os: 1, browser: 1, environment: 1, user: 1 },
+        ).populate('user', { username: 1, avatar: 1 });
+        const _sockets = sockets.reduce((result, socket) => {
+            result[socket.user.toString()] = socket;
+            return result;
+        }, {});
+        const list = Object.values(_sockets);
+        ctx.body = {
+            code: 0,
+            msg: '获取成功',
+            data: list,
+        }
     }
-
-    // 获取指定群组的在线用户
+    // 修改群头像
+    async changeGroupAvatar() {
+        const { ctx } = this;
+        const { groupId, avatar } = ctx.request.body;
+        assert(isValid(groupId), '无效的群组ID');
+        assert(avatar, '头像地址不能为空');
+        const group = await ctx.model.Group.findOne({ _id: groupId });
+        assert(group, '群组不存在');
+        assert(group.creator.toString() === ctx.uid.toString(), '只有群主才能修改头像');
+        await ctx.model.Group.updateOne({ _id: groupId }, { avatar });
+        ctx.body = {
+            code: 0,
+            msg: '修改成功',
+        }
+    }
+    // 修改群名称
+    async changeGroupName() {
+        const { ctx } = this;
+        const { groupId, name } = ctx.request.body;
+        assert(isValid(groupId), '无效的群组ID');
+        assert(name, '名称不能为空');
+        const group = await ctx.model.Group.findOne({ _id: groupId });
+        assert(group, '群组不存在');
+        assert(group, '新群组名称不能与之前一致');
+        assert(group.creator.toString() === ctx.uid.toString(), '只有群主才能修改群名');
+        const _group = await ctx.model.Group.findOne({ name });
+        assert(!_group, '该群组名已存在');
+        await ctx.model.Group.updateOne({ _id: groupId }, { name });
+        ctx.socket.to(groupId).emit('changeGroupName', { groupId, name });
+        ctx.body = {
+            code: 0,
+            msg: '修改成功',
+        }
+    }
+    // 删除群组
+    async deleteGroup() {
+        const { ctx } = this;
+        const { groupId } = ctx.request.body;
+        assert(isValid(groupId), '无效的群组ID');
+        const group = await ctx.model.Group.findOne({ _id: groupId });
+        assert(group, '群组不存在');
+        assert(group.creator.toString() === ctx.uid.toString(), '只有群主才能解散群组');
+        await group.remove();
+        ctx.socket.to(groupId).emit('deleteGroup', { groupId });
+        ctx.body = {
+            code: 0,
+            msg: '删除成功',
+        }
+    }
 }
 
 module.exports = GroupController;
