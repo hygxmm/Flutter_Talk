@@ -7,5 +7,6 @@ module.exports = app => {
   router.post('/api/user/register', controller.user.register);
 
   // socket.io
-  io.of('/').route('exchange', io.controller.default.exchange)
+  io.of('/').route('exchange', io.controller.default.exchange);
+  io.of('/').route('sendMessage', io.controller.default.sendMessage);
 };

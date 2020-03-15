@@ -26,17 +26,16 @@
     <div>
         <input id="area" />
         <button id="action" onclick="send()">发送</button>
+        <button id="action2" onclick="test()">发送</button>
     </div>
     <script>
         const log = console.log;
         const _list = document.querySelector('#list');
         const _input = document.querySelector('#area');
-        const _btn = document.querySelector('#action');
         const uid = Math.random().toString(16).substr(2);
         const rid = 'A10000'
         const socket = io('/', {
             query: {
-                room: rid,
                 userId: uid
             },
             transports: ['websocket']
@@ -75,6 +74,15 @@
                 payload: {
                     msg: text,
                 },
+            })
+            _input.value = '';
+        }
+        function test() {
+            let text = _input.value;
+            socket.emit('sendMessage', {
+                to: rid,
+                type: 'text',
+                content: text,
             })
             _input.value = '';
         }
