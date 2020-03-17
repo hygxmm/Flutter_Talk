@@ -5,6 +5,7 @@ module.exports = app => {
 
   router.post('/api/user/login', controller.user.login);
   router.post('/api/user/register', controller.user.register);
+  router.post('/api/user/loginByToken', jwt, controller.user.loginByToken);
 
 
   router.post('/api/system/search', controller.system.search);

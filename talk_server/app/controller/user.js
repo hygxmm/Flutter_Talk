@@ -45,18 +45,14 @@ class UserController extends Controller {
         assert(user, '该用户不存在');
         const hash = crypto.createHmac("sha256", config.secret).update(password).digest("base64");
         assert(user.password === hash, '密码错误');
-        await ctx.model.User.updateOne({ 'lastLoginTime': Date.now() });
+        user.lastLoginTime = new Date();
+        await user.save();
         // 查询好友
         const groups = await ctx.model.Group.find({ members: user }, { _id: 1, nme: 1, avatar: 1, creator: 1, createTime: 1 });
-        // socket 加入房间
-        groups.forEach(group => {
-            ctx.socket.join(group._id.toString());
-        });
         // 查询好友
         const friends = await ctx.model.Friend.find({ from: user._id }).populate('to', { username: 1, avatar: 1 });
         // 生成 token
         const token = jwt.sign({ uid: user._id }, config.jwt.secret, { expiresIn: '7d' });
-        await ctx.model.Socket.updateOne({ id: ctx.socket.id }, { user: user._id });
         ctx.body = {
             code: 0,
             message: '登录成功',
@@ -71,6 +67,15 @@ class UserController extends Controller {
                 }
             }
         }
+    }
+    // token 登录
+    async loginByToken() {
+        const { ctx } = this;
+        console.log(ctx.socket.user, "///////////");
+
+
+
+
     }
     // 修改用户头像
     async changeAvatar() {
@@ -126,6 +131,7 @@ class UserController extends Controller {
         const friend = await ctx.model.Friend.find({ from: ctx.uid, to: user._id });
         assert(friend.length === 0, '你们已经是好友了');
         const newFriend = await ctx.model.Friend.create({ from: ctx.uid, to: user._id });
+
         ctx.body = {
             code: 0,
             msg: '添加成功'

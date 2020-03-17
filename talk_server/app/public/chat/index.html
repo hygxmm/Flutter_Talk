@@ -161,7 +161,7 @@
     <div id="app">
         <div class="left">
             <div class="">
-                <img class="avatar" :src=" user &&　user.avatar"></img>
+                <img class="avatar" :src=" user &&　user.avatar" :title="user && user.username"></img>
             </div>
             <div class="" @click="changeTab('1')">消息</div>
             <div class="" @click="changeTab('2')">好友</div>
@@ -312,9 +312,10 @@
 
                 },
                 initSocket() {
+                    console.log(this.user)
                     this.socket = io('/', {
                         query: {
-                            userId: this.user._id,
+                            userId: this.user.id,
                         },
                         transports: ['websocket']
                     })
@@ -363,30 +364,29 @@
                             console.log(err)
                         })
                     }
+                },
+                // 自动登录
+                loginByToken() {
+                    http.post('user/loginByToken')
+                        .then(res => {
+                            console.log(res)
+                        })
+                        .catch(err => {
+                            console.log(err)
+                        })
 
                 }
             },
             created() {
                 let token = localStorage.getItem('_token');
-                let user = localStorage.getItem('_user');
-                let groups = localStorage.getItem('_groups');
-                let friends = localStorage.getItem('_friends');
                 if (token) {
                     this.token = token;
+                    this.loginByToken();
                 }
-                if (user) {
-                    this.user = JSON.parse(user);
-                }
-                if (groups) {
-                    this.groups = JSON.parse(groups);
-                }
-                if (friends) {
-                    this.friends = JSON.parse(friends);
-                }
-                if (token && user) {
-                    this.isLogin = true;
-                    this.initSocket();
-                }
+                // if (token && user) {
+                //     this.isLogin = true;
+                //     this.initSocket();
+                // }
             },
 
         })
