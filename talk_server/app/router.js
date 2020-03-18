@@ -12,9 +12,6 @@ module.exports = app => {
 
   router.post('/api/user/addFriend', jwt, controller.user.addFriend);
 
-
-
   // socket.io
   io.of('/').route('exchange', io.controller.default.exchange);
-  io.of('/').route('sendMessage', io.controller.default.sendMessage);
 };

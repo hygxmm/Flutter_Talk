@@ -4,29 +4,29 @@ const isValid = require('mongoose').Types.ObjectId.isValid;
 
 
 class DefaultController extends Controller {
-    async exchange() {
-        const { ctx, app } = this;
-        const nsp = app.io.of('/');
-        const message = ctx.args[0] || {};
-        const socket = ctx.socket;
-        const client = socket.id;
-        console.log("message", message)
-        console.log("client", client)
+    // async exchange() {
+    //     const { ctx, app } = this;
+    //     const nsp = app.io.of('/');
+    //     const message = ctx.args[0] || {};
+    //     const socket = ctx.socket;
+    //     const client = socket.id;
+    //     console.log("message", message)
+    //     console.log("client", client)
 
-        try {
-            const { target, payload } = message;
-            if (!target) return;
-            const msg = ctx.helper.parseMsg('exchange', payload, { client, target });
-            nsp.emit(target, msg);
-        } catch (error) {
-            app.logger.error(error);
-        }
-    }
+    //     try {
+    //         const { target, payload } = message;
+    //         if (!target) return;
+    //         const msg = ctx.helper.parseMsg('exchange', payload, { client, target });
+    //         nsp.emit(target, msg);
+    //     } catch (error) {
+    //         app.logger.error(error);
+    //     }
+    // }
     // 发送消息
     // 如果是发送给群组,to是群组id
     // 如果是发送给好友,to是俩人的id按大小序拼接后的值
-    async sendMessage() {
-        const { ctx } = this;
+    async exchange() {
+        const { ctx, app } = this;
         let { to, type, content } = ctx.args[0];
         const nsp = app.io.of('/');
         console.log('to', to);
@@ -71,7 +71,7 @@ class DefaultController extends Controller {
                 });
 
             }
-            messageContent = xss(messageContent);
+            // messageContent = xss(messageContent);
         } else if (type == 'invite') {
             const group = await ctx.model.Group.findOne({ _id: to });
             assert(group, '群组不存在');
@@ -106,7 +106,7 @@ class DefaultController extends Controller {
             })
             const selfSockets = await ctx.model.Socket.find({ user: ctx.socket.user });
             selfSockets.forEach(socket => {
-                if (socket.id !== ctx.user.id) {
+                if (socket.id !== ctx.socket.user) {
                     nsp.to(socket.id).emit('message', messageData);
                 }
             })

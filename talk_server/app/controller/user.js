@@ -71,7 +71,28 @@ class UserController extends Controller {
     // token 登录
     async loginByToken() {
         const { ctx } = this;
-        console.log(ctx.socket.user, "///////////");
+        const user = await ctx.model.User.findOne({ _id: ctx.uid });
+        assert(user, '该用户不存在');
+        user.lastLoginTime = new Date();
+        await user.save();
+        // 查询好友
+        const groups = await ctx.model.Group.find({ members: user }, { _id: 1, nme: 1, avatar: 1, creator: 1, createTime: 1 });
+        // 查询好友
+        const friends = await ctx.model.Friend.find({ from: user._id }).populate('to', { username: 1, avatar: 1 });
+        // 生成 token
+        ctx.body = {
+            code: 0,
+            message: '登录成功',
+            data: {
+                groups,
+                friends,
+                user: {
+                    id: user._id,
+                    username: user.username,
+                    avatar: user.avatar,
+                }
+            }
+        }
 
 
 
