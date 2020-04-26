@@ -32,11 +32,11 @@ class UserModel with ChangeNotifier {
   }
 
   // 登录
-  Future login(String name, String password) async {
+  Future login(String username, String password) async {
     print('登录请求');
     var result = await HttpUtil().post(
       'user/login',
-      data: {'username': name, 'password': password},
+      data: {'username': username, 'password': password},
     );
     if (result['code'] == 0) {
       _savedUser(result['data']['user'], result['data']['token']);

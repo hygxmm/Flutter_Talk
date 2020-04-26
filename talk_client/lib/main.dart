@@ -3,9 +3,7 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-// import 'package:provider/provider.dart';
 import 'package:talk_client/application.dart';
-import 'package:talk_client/providers/message.dart';
 import 'package:talk_client/providers/user.dart';
 
 void main() async {

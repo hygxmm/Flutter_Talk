@@ -1,7 +1,10 @@
 import 'package:fluro/fluro.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talk_client/router/routes.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:talk_client/providers/user.dart';
 
 class Application {
   static Router router;
@@ -21,12 +24,11 @@ class Application {
   }
 
   // 初始化 socket
-  static initSocket() {
+  static initSocket(BuildContext context) {
     io = IO.io('http://192.168.0.107:7001', <String, dynamic>{
       'transports': ['websocket'],
       'query': {
-        'room': 'demo',
-        'userId': 'client_aaaaaaa',
+        'userId': Provider.of<UserModel>(context).user,
       },
     });
     io.on('connect', (_) {

@@ -27,7 +27,7 @@ class _BottomTabBarState extends State<BottomTabBar> {
 
   @override
   void initState() {
-    Application.initSocket();
+    // Application.initSocket(context);
     super.initState();
   }
 

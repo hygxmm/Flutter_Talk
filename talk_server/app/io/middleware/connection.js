@@ -15,8 +15,8 @@ module.exports = () => {
         socket.ip = ip;
         console.log(`连接上啦!!! =====>>> socket_id: ${id}`)
         await ctx.model.Socket.create({ id: id, ip: socket.ip });
+        console.log(user);
         await ctx.model.Socket.updateOne({ id: id }, { user: user._id });
-
         await next();
 
         console.log("用户离开");

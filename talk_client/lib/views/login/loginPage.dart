@@ -28,6 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
       BotToast.showText(text: '请输入密码');
       return;
     }
+    loading = true;
     UserModel userModel = Provider.of<UserModel>(context, listen: false);
     var res =
         await userModel.login(_nameCtrl.text.trim(), _passCtrl.text.trim());
@@ -76,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text('您好,', style: titleStyle),
-                      Text('欢迎来到中犇商城', style: titleStyle),
+                      Text('欢迎来到星网', style: titleStyle),
                     ],
                   ),
                 ),
